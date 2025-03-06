@@ -23,19 +23,29 @@ public:
         };
     }
 
-    double calculateWeight(const std::string& białko) {
-        double totalWeight = 0.0;
-        for (char aminokwas : białko) {
-            totalWeight += massTable[aminokwas];
+    std::string reconstructProtein(const std::vector<double>& prefixWeights) {
+        std::string białko;
+        for (size_t i = 1; i < prefixWeights.size(); ++i) {
+            double massDiff = prefixWeights[i] - prefixWeights[i - 1];
+            for (const auto& [aminokwas, mass] : massTable) {
+                if (std::fabs(mass - massDiff) < 0.01) {
+                    białko += aminokwas;
+                    break;
+                }
+            }
         }
-        return totalWeight;
+        return białko;
     }
 };
 
 int main() {
     ProteinProcessor processor;
-    std::string białko;
-    std::cin >> białko;
-    std::cout << std::fixed << std::setprecision(3) << processor.calculateWeight(białko) << std::endl;
+    std::vector<double> weights;
+    double weight;
+    while (std::cin >> weight) {
+        weights.push_back(weight);
+    }
+
+    std::cout << processor.reconstructProtein(weights) << std::endl;
     return 0;
 }
